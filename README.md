@@ -137,6 +137,13 @@ Verilog). Not published on PyPI — install from source or a git submodule:
 pip install -e path/to/cocotb-vga
 ```
 
+## VGA Timing Info
+
+This library uses the diagram below for vsync timing. Others will not work
+correctly.
+
+![VGA](img/VGA.png)
+
 ## License
 
 Apache-2.0
