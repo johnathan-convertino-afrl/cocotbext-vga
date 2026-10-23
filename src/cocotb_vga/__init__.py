@@ -20,7 +20,7 @@ from .frame import Frame, FrameMismatchError
 from .timing import SVGA_800x600_60, TOY_64x48, VGA_640x480_60, VGATiming
 from .video import save_gif, save_mp4
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 __all__ = [
     "Frame",

@@ -13,18 +13,15 @@ fake signal objects.
 from __future__ import annotations
 
 
-def expand_channel(value: int, width: int) -> int:
-    """Scale a ``width``-bit color channel value to 8 bits (0..255).
-
-    Uses the standard replication-equivalent scaling ``v * 255 // (2^w - 1)``
-    so full scale maps to 255 exactly (e.g. 2-bit values map to
-    0, 85, 170, 255). Channels wider than 8 bits keep their top 8 bits.
+def bit_slice(value: int, width: int) -> int:
+    """ Map the value based on how many bits are sliced from it.
+        quick and easy method of dealing with DAC vs RGB bit depth.
     """
     if width <= 0:
         raise ValueError("channel width must be >= 1")
     if width >= 8:
         return value >> (width - 8)
-    return (value * 255) // ((1 << width) - 1)
+    return value << (8 - width)
 
 
 class TinyVGA:
@@ -56,9 +53,9 @@ class TinyVGA:
             lut.append((
                 (v >> 7) & 1,           # hsync level
                 (v >> 3) & 1,           # vsync level
-                expand_channel(r, 2),
-                expand_channel(g, 2),
-                expand_channel(b, 2),
+                (r * 255) // ((1 << 2) - 1),
+                (g * 255) // ((1 << 2) - 1),
+                (b * 255) // ((1 << 2) - 1),
             ))
         self._lut = lut
 
@@ -74,17 +71,19 @@ class VGASignals:
 
     Channel widths are taken from ``len(signal)`` and can be overridden with
     ``red_width``/``green_width``/``blue_width`` (useful when a channel is a
-    slice of a wider bus).
+    slice of a wider bus). Value mapping can be customized with a function
+    that takes in the value, and width and returns an integer. Default
+    is bit slice.
     """
 
     def __init__(self, *, hsync, vsync, red, green, blue,
-                 red_width=None, green_width=None, blue_width=None):
+                 red_width=None, green_width=None, blue_width=None, value_map=bit_slice):
         self._hsync = hsync
         self._vsync = vsync
         self._channels = []
         for sig, width in ((red, red_width), (green, green_width), (blue, blue_width)):
             w = width if width is not None else len(sig)
-            lut = tuple(expand_channel(v, w) for v in range(1 << w))
+            lut = tuple(value_map(v, w) for v in range(1 << w))
             self._channels.append((sig, lut))
 
     def sample(self):
