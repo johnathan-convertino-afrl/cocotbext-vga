@@ -14,7 +14,7 @@ Typical use in a Tiny Tapeout testbench::
 """
 
 from .assembler import FrameAssembler, VGATimingError
-from .bus import TinyVGA, VGASignals, expand_channel
+from .bus import TinyVGA, VGASignals, bit_slice
 from .capture import VGACapture, VGACaptureTimeout
 from .frame import Frame, FrameMismatchError
 from .timing import SVGA_800x600_60, TOY_64x48, VGA_640x480_60, VGATiming
@@ -35,7 +35,7 @@ __all__ = [
     "VGATiming",
     "VGATimingError",
     "VGA_640x480_60",
-    "expand_channel",
+    "bit_slice",
     "save_gif",
     "save_mp4",
 ]
